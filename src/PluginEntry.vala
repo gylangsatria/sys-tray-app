@@ -13,6 +13,10 @@ public Wingpanel.Indicator? get_indicator (
     GLib.Module module,
     Wingpanel.IndicatorManager.ServerType server_type
 ) {
+    // get_indicator mengembalikan null, jadi Wingpanel menutup modul ini dan
+    // GType indikator yang dibuat di dalamnya jadi tidak valid.
+    module.make_resident ();
+
     if (server_type != Wingpanel.IndicatorManager.ServerType.SESSION) {
         return null;
     }

@@ -170,11 +170,11 @@ namespace SysTray {
 
             if (show_label) {
                 if (label == null) {
-                    label = new Gtk.Label (null);
+                    label = new Gtk.Label ("");
                     box.pack_start (label, false, false, 0);
                 }
 
-                label.label = x_label;
+                label.set_text (x_label);
             }
 
             var tooltip = x_label != ""
@@ -224,16 +224,17 @@ namespace SysTray {
 
             // Isi popover diganti tiap kali layout dbusmenu berubah.
             foreach (var child in popover_box.get_children ()) {
+                popover_box.remove (child);
                 child.destroy ();
             }
 
-            var root = menu.build ();
+            var menu_widget = menu.build ();
 
-            if (root == null) {
+            if (menu_widget == null) {
                 return;
             }
 
-            popover_box.add (root);
+            popover_box.add (menu_widget);
             popover_box.show_all ();
 
             // Popover Wingpanel bisa sudah terbuka sebelum menu selesai dibaca.

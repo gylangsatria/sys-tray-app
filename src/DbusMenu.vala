@@ -214,6 +214,10 @@ namespace SysTray {
         private static string prop_string (GLib.Variant dict, string key) {
             var value = dict.lookup_value (key, GLib.VariantType.STRING);
 
+            if (value == null) {
+                value = dict.lookup_value (key, GLib.VariantType.OBJECT_PATH);
+            }
+
             return value != null ? value.get_string () : "";
         }
 
