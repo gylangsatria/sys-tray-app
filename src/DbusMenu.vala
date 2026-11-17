@@ -39,13 +39,14 @@ namespace SysTray {
         private Node? root = null;
         private uint8 refreshing = 0;
         private uint8 refresh_again = 0;
+        private uint subscription = 0;
 
         public DbusMenu (GLib.DBusConnection connection, string bus_name, string object_path) {
             this.connection = connection;
             this.bus_name = bus_name;
             this.object_path = object_path;
 
-            connection.signal_subscribe (
+            subscription = connection.signal_subscribe (
                 bus_name,
                 "com.canonical.dbusmenu",
                 "LayoutUpdated",
@@ -56,6 +57,11 @@ namespace SysTray {
             );
 
             refresh ();
+        }
+
+        /** Dipanggil saat item pemilik menu berhenti. */
+        public void stop () {
+            connection.signal_unsubscribe (subscription);
         }
 
         private void member_changed (

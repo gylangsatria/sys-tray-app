@@ -23,6 +23,7 @@ namespace SysTray {
         private Gtk.Box box;
         private Gtk.Box? popover_box = null;
         private DbusMenu? menu = null;
+        private uint item_subscription = 0;
 
         private string icon_name = "";
         private string attention_icon_name = "";
@@ -31,6 +32,11 @@ namespace SysTray {
         private string accessible_desc = "";
         private string x_label = "";
         private string status = "Active";
+
+        // Ikon mentah (IconPixmap / AttentionIconPixmap) dari item, dipakai kalau
+        // IconName kosong. Formatnya array (width, height, ARGB big-endian).
+        private Gdk.Pixbuf? icon_pixmap = null;
+        private Gdk.Pixbuf? attention_pixmap = null;
 
         public ItemIndicator (
             GLib.DBusConnection connection,
@@ -78,11 +84,21 @@ namespace SysTray {
         }
 
         public void destroy () {
-            Wingpanel.IndicatorManager.get_default ().deregister_indicator (register_identifier, this);
+            // Tidak memanggil deregister_indicator (): itu memicu
+            // IndicatorManager.indicator_removed dan IndicatorBar.remove_indicator
+            // milik Wingpanel, yang menghapus elemen Gee.List saat foreach dan
+            // meng-abort seluruh wingpanel (gee assertion 'index < _size'),
+            // padahal semua panel mati bersamanya.
+            visible = false;
+            connection.signal_unsubscribe (item_subscription);
+
+            if (menu != null) {
+                menu.stop ();
+            }
         }
 
         private void watch_item_signals () {
-            connection.signal_subscribe (
+            item_subscription = connection.signal_subscribe (
                 bus_name,
                 "org.kde.StatusNotifierItem",
                 null,
@@ -117,9 +133,14 @@ namespace SysTray {
             var props = yield read_item_properties ();
 
             if (props == null) {
+                // Object path item tidak bisa dibaca (mis. item lewat
+                // xdg-dbus-proxy, atau prosesnya baru hilang). Disembunyikan
+                // supaya tidak ada ikon kosong; sinyal SNI berikutnya akan
+                // membaca ulang dan menampilkannya lagi kalau ternyata hidup.
+                visible = false;
+
                 return;
             }
-
             icon_name = get_string (props, "IconName");
             attention_icon_name = get_string (props, "AttentionIconName");
             icon_theme_path = get_string (props, "IconThemePath");
@@ -127,6 +148,9 @@ namespace SysTray {
             accessible_desc = get_string (props, "IconAccessibleDesc");
             x_label = get_string (props, "XAyatanaLabel");
             status = get_string (props, "Status");
+
+            icon_pixmap = IconData.parse (props["IconPixmap"]);
+            attention_pixmap = IconData.parse (props["AttentionIconPixmap"]);
 
             update_display_widget ();
 
@@ -150,17 +174,25 @@ namespace SysTray {
             // Hanya item aktif yang ditampilkan, sama seperti perilaku Ubuntu.
             visible = status != "Passive";
 
-            var current_icon = status == "NeedsAttention" && attention_icon_name != ""
+            var needs_attention = status == "NeedsAttention";
+            var pixbuf = needs_attention && attention_pixmap != null ? attention_pixmap : icon_pixmap;
+            var current_icon = needs_attention && attention_icon_name != ""
                 ? attention_icon_name
                 : icon_name;
 
-            if (current_icon != "") {
+            // IconPixmap dipakai lebih dulu: banyak aplikasi (mis. ZapFast)
+            // mengosongkan IconName dan hanya mengirim gambar mentah.
+            if (pixbuf != null || current_icon != "") {
                 if (image == null) {
                     image = new Gtk.Image ();
                     box.pack_start (image, false, false, 0);
                 }
 
-                set_icon (current_icon);
+                if (pixbuf != null) {
+                    image.set_from_pixbuf (IconData.scale (pixbuf, IconData.SIZE));
+                } else {
+                    set_icon (current_icon);
+                }
             } else if (image != null) {
                 image.set_from_icon_name ("image-missing", Gtk.IconSize.MENU);
             }
@@ -197,10 +229,12 @@ namespace SysTray {
                 return;
             }
 
-            // Beberapa aplikasi (mis. Electron/Flutter) mengirim path absolut.
-            if (GLib.Path.is_absolute (name)) {
+            // Beberapa aplikasi (mis. Electron/Flutter) mengirim path absolut,
+            // kadang dalam bentuk file:// yang masih ter-encode.
+            if (GLib.Path.is_absolute (name) || name.has_prefix ("file://")) {
                 try {
-                    image.set_from_pixbuf (new Gdk.Pixbuf.from_file_at_scale (name, 22, 22, true));
+                    var path = GLib.Uri.unescape_string (name.has_prefix ("file://") ? GLib.Uri.parse (name, GLib.UriFlags.NONE).get_path () : name);
+                    image.set_from_pixbuf (new Gdk.Pixbuf.from_file_at_scale (path, IconData.SIZE, IconData.SIZE, true));
                 } catch (Error e) {
                     image.set_from_icon_name ("image-missing", Gtk.IconSize.MENU);
                 }
@@ -212,6 +246,15 @@ namespace SysTray {
                 // Ikon aplikasi biasanya tidak ada di tema sistem.
                 Gtk.IconTheme.get_default ().append_search_path (icon_theme_path);
                 Gtk.IconTheme.get_default ().rescan_if_needed ();
+            }
+
+            // Nama ikon yang tidak ada di tema bikin kotak kosong; lebih baik
+            // menandainya supaya item tidak tampak "hantu".
+            if (!Gtk.IconTheme.get_default ().has_icon (name)) {
+                warning ("sys-tray: ikon '%s' tidak ditemukan di tema", name);
+                image.set_from_icon_name ("image-missing", Gtk.IconSize.MENU);
+
+                return;
             }
 
             image.set_from_icon_name (name, Gtk.IconSize.MENU);

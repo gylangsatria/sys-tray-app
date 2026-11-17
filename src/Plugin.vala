@@ -89,6 +89,10 @@ namespace SysTray {
             }
 
             indicators.unset (key);
+
+            // Indikator tidak dideregister ke Wingpanel: panel Wingpanel abort
+            // kalau daftar indikatornya diubah (bug IndicatorBar.remove_indicator).
+            // destroy() menyembunyikan widget dan melepas langganan sinyalnya.
             indicator.destroy ();
         }
 

@@ -24,7 +24,8 @@ case " $missing " in *" ninja "*) missing="$missing ninja-build" ;; esac
 
 # keperluan meson.build: nama .pc -> paket apt (Ubuntu noble / elementary OS 8)
 DEPS="glib-2.0:libglib2.0-dev gio-2.0:libglib2.0-dev gmodule-2.0:libglib2.0-dev
-      gee-0.8:libgee-0.8-dev gtk+-3.0:libgtk-3-dev granite:libgranite-dev"
+      gee-0.8:libgee-0.8-dev gtk+-3.0:libgtk-3-dev gdk-pixbuf-2.0:libgdk-pixbuf-2.0-dev
+      granite:libgranite-dev"
 
 if command -v pkg-config >/dev/null 2>&1; then
     for pair in $DEPS; do

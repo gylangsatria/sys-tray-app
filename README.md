@@ -49,6 +49,20 @@ that got registered along with the contents of each item's menu, and clicks
 the `Uji Klik` menu item if one exists. SNI apps running in your session show
 up right away.
 
+Check the icon conversion on its own (no display, no D-Bus):
+
+```sh
+meson test -C build                 # -> icon-data
+```
+
+`tests/fake_item.py` registers throwaway SNI items (bare `IconPixmap`, no
+`IconName`) so the item-exit path can be exercised without real apps:
+
+```sh
+dbus-run-session -- sh -c 'GDK_BACKEND=x11 ./build/sys-tray-harness build/libsys-tray.so &
+  sleep 3; python3 tests/fake_item.py /Item/A /Item/B & sleep 5; kill %2; sleep 5; kill %1'
+```
+
 ## Layout
 
 | File | What's in it |
@@ -58,6 +72,7 @@ up right away.
 | `src/Watcher.vala` | `org.kde.StatusNotifierWatcher` |
 | `src/ItemIndicator.vala` | panel icon plus SNI properties (IconName, Status, XAyatanaLabel, Menu) |
 | `src/DbusMenu.vala` | minimal `com.canonical.dbusmenu` client that builds GTK widgets |
+| `src/IconData.vala` | `IconPixmap`/`AttentionIconPixmap` (raw ARGB) to `Gdk.Pixbuf`, plus scaling |
 | `main.vala` | the old AppIndicator entry point, unused, kept as a note |
 
 ## Install
@@ -102,11 +117,20 @@ Wingpanel 8, where nothing owns `org.kde.StatusNotifierWatcher`.
 
 ## Known limits
 
-- Icons come from `IconName` (theme name or absolute path) and
-  `IconThemePath`. The `IconPixmap`/`icon-data` property (raw image bytes)
-  isn't drawn yet.
+- Icons come from `IconPixmap`/`AttentionIconPixmap` first (which many apps use
+  on their own), then `IconName` (theme name or absolute/`file://` path), then
+  `IconThemePath`.
 - Left-clicking the icon opens the popover. SNI `Activate` and
   `SecondaryActivate` are never called, because Wingpanel owns the popover
   gesture.
 - The popover is built out of `Gtk.Box` instead of `Gtk.Menu`, since
   Wingpanel's popover is a plain container; submenus use `Gtk.MenuButton`.
+- Items whose app quits are **hidden**, never deregistered: Wingpanel 8.0.4
+  aborts (`IndicatorBar.remove_indicator` removes from a `Gee.List` while
+  iterating it, tripping the `arraylist.c` assert `index < _size`) and takes the
+  whole panel down. Items whose properties cannot be read (dead object path,
+  apps behind `xdg-dbus-proxy`) are hidden the same way instead of showing an
+  empty slot; a later SNI signal brings them back if they turn out alive.
+  `IndicatorManager` never drops such entries, so a long session with heavy tray
+  churn keeps a few hidden ones around — log out or `pkill
+  io.elementary.wingpanel` to clear them.

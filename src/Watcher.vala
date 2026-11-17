@@ -91,25 +91,25 @@ namespace SysTray {
             debug ("sys-tray: host terdaftar: %s", service);
         }
 
-        // Aplikasi berhenti -> item dan indikatornya ikut dibuang.
+        // Aplikasi berhenti -> semua item dan indikatornya ikut dibuang.
+        // Satu proses bisa punya lebih dari satu item (mis. nm-applet), jadi
+        // semua key yang berawalan bus name itu dikumpulkan dulu; mengubah map
+        // saat foreach bisa membuat iterasi baca indeks yang sudah hilang.
         private void on_owner_vanished (GLib.DBusConnection conn, string name) {
-            string? dead_key = null;
+            var dead = new Gee.ArrayList<string> ();
 
             foreach (var key in items.keys) {
                 if (key.has_prefix (name + "/")) {
-                    dead_key = key;
-                    break;
+                    dead.add (key);
                 }
             }
 
-            if (dead_key == null) {
-                return;
+            foreach (var key in dead) {
+                GLib.Bus.unwatch_name (items[key]);
+                items.unset (key);
+                status_notifier_item_unregistered (key);
+                item_unregistered (key);
             }
-
-            GLib.Bus.unwatch_name (items[dead_key]);
-            items.unset (dead_key);
-            status_notifier_item_unregistered (dead_key);
-            item_unregistered (dead_key);
         }
     }
 }
