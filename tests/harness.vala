@@ -27,7 +27,7 @@ private int report () {
             "  code_name=%s visible=%s display=%s popover=%s\n",
             indicator.code_name,
             indicator.visible.to_string (),
-            display.get_name () ?? "null",
+            display.get_type ().name (),
             popover != null ? "ada" : "null"
         );
 
@@ -61,10 +61,12 @@ private int report () {
                                 stdout.printf ("      -> klik %s\n", button.text);
                                 GLib.Signal.emit_by_name (button, "clicked");
                             }
+                        } else if (row is Gtk.Separator) {
+                            stdout.printf ("      pemisah\n");
                         } else if (row is Gtk.MenuButton) {
                             stdout.printf ("      submenu: %s\n", ((Gtk.MenuButton) row).label);
                         } else {
-                            stdout.printf ("      lain: %s\n", row.get_name () ?? "?");
+                            stdout.printf ("      lain: %s\n", row.get_type ().name ());
                         }
                     }
                 }

@@ -245,7 +245,9 @@ namespace SysTray {
             popover_box.show_all ();
 
             // Popover Wingpanel bisa sudah terbuka sebelum menu selesai dibaca.
-            unowned Gtk.Widget? parent = popover_box.get_parent ();
+            // get_ancestor dipakai sebagai ganti get_parent agar kode C tidak
+            // memakai cast tipe (bersih di semua versi gcc).
+            unowned Gtk.Widget? parent = popover_box.get_ancestor (typeof (Gtk.Container));
 
             if (parent != null) {
                 parent.show_all ();
@@ -267,6 +269,13 @@ namespace SysTray {
                     3000
                 );
             } catch (Error e) {
+                if (GLib.DBusError.get_remote_error (e) == "org.freedesktop.DBus.Error.ServiceUnknown") {
+                    // Item hilang sebelum propertinya sempat dibaca.
+                    debug ("sys-tray: item %s sudah tidak ada", object_path);
+
+                    return null;
+                }
+
                 warning ("sys-tray: gagal membaca properti %s: %s", object_path, e.message);
 
                 return null;
