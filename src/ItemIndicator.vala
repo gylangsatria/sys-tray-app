@@ -245,7 +245,7 @@ namespace SysTray {
             popover_box.show_all ();
 
             // Popover Wingpanel bisa sudah terbuka sebelum menu selesai dibaca.
-            var parent = popover_box.get_parent ();
+            unowned Gtk.Widget? parent = popover_box.get_parent ();
 
             if (parent != null) {
                 parent.show_all ();
