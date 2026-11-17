@@ -130,6 +130,12 @@ The install adds exactly one file and no autostart entries, D-Bus services or
 config, so removing that file is a full revert: the session goes back to stock
 Wingpanel 8, where nothing owns `org.kde.StatusNotifierWatcher`.
 
+## License
+
+GPL-3.0-or-later — see [`COPYING`](COPYING), the full text of GPLv3. The
+`vapi/wingpanel.h` and `vapi/wingpanel-8.0.vapi` copies are generated from
+Wingpanel 8.0.4 and stay under Wingpanel's own GPL-3.0-or-later terms.
+
 ## Known limits
 
 - Icons come from `IconPixmap`/`AttentionIconPixmap` first (which many apps use
