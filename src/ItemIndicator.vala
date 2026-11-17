@@ -223,8 +223,15 @@ namespace SysTray {
             }
 
             // Isi popover diganti tiap kali layout dbusmenu berubah.
+            // get_children() mengembalikan referensi lemah, jadi referensinya
+            // ditahan dulu sebelum dihancurkan.
+            var stale = new Gee.ArrayList<Gtk.Widget> ();
+
             foreach (var child in popover_box.get_children ()) {
-                popover_box.remove (child);
+                stale.add (child);
+            }
+
+            foreach (var child in stale) {
                 child.destroy ();
             }
 

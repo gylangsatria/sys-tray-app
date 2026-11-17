@@ -16,6 +16,11 @@ private int report () {
     stdout.printf ("jumlah indikator: %u\n", indicators.size);
 
     foreach (var indicator in indicators) {
+        // Popover dibuka lebih dulu: refresh_menu() membaca layout dbusmenu dan
+        // mengganti isi popover. Kalau penggantian isi salah, GTK mencetak
+        // Gtk-CRITICAL di sini.
+        indicator.opened ();
+
         var display = indicator.get_display_widget ();
         var popover = indicator.get_widget ();
         stdout.printf (
