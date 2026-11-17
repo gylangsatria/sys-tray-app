@@ -51,13 +51,23 @@ namespace SysTray {
             GLib.Bus.own_name_on_connection (
                 connection,
                 Watcher.BUS_NAME,
-                GLib.BusNameOwnerFlags.NONE
+                GLib.BusNameOwnerFlags.NONE,
+                on_name_acquired,
+                on_name_lost
             );
 
             watcher.item_registered.connect (on_item_registered);
             watcher.item_unregistered.connect (on_item_unregistered);
+        }
 
-            debug ("sys-tray: watcher aktif sebagai %s", Watcher.BUS_NAME);
+        private void on_name_acquired (GLib.DBusConnection conn, string name) {
+            debug ("sys-tray: watcher aktif sebagai %s", name);
+        }
+
+        private void on_name_lost (GLib.DBusConnection conn, string name) {
+            // Nama bus dipegang proses lain (mis. xapp-sn-watcher): item SNI
+            // akan mendaftar ke pemegang nama itu, bukan ke plugin ini.
+            critical ("sys-tray: gagal mengambil nama %s, aplikasi SNI tidak akan tampil", name);
         }
 
         private void on_item_registered (string bus_name, string object_path, string key) {
