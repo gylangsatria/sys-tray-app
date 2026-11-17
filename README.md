@@ -63,12 +63,42 @@ up right away.
 ## Install
 
 ```sh
-sudo ninja -C build install          # into /usr/lib/x86_64-linux-gnu/wingpanel/
-pkill io.elementary.wingpanel        # reload the panel
+./install.sh                        # dependency, build, install, restart Wingpanel
 ```
 
-This writes to `/usr`, so do it only on the machine you want it on. Nothing
-else is needed; `xapp-sn-watcher` can stay off.
+Build dependencies are installed automatically with `apt-get` when missing
+(`meson`, `ninja-build`, `valac`, `pkg-config`, `libglib2.0-dev`,
+`libgee-0.8-dev`, `libgtk-3-dev`, `libgranite-dev`). `libwingpanel` needs no
+`-dev` package: the repo carries the headers/vapi itself.
+
+Or by hand, into `/usr/lib/x86_64-linux-gnu/wingpanel/`:
+
+```sh
+meson setup build --prefix=/usr
+ninja -C build
+sudo ninja -C build install
+pkill io.elementary.wingpanel      # reload the panel
+```
+
+This writes to `/usr` (sudo needed), so do it only on the machine you want it
+on. Nothing else is needed; `xapp-sn-watcher` can stay off.
+
+Dry run without touching `/usr` (Meson's `DESTDIR` convention):
+
+```sh
+DESTDIR=/tmp/st ./install.sh        # files land in /tmp/st/usr/...
+DESTDIR=/tmp/st ./uninstall.sh
+```
+
+## Uninstall
+
+```sh
+./uninstall.sh                      # remove the plugin + restart Wingpanel
+```
+
+The install adds exactly one file and no autostart entries, D-Bus services or
+config, so removing that file is a full revert: the session goes back to stock
+Wingpanel 8, where nothing owns `org.kde.StatusNotifierWatcher`.
 
 ## Known limits
 
