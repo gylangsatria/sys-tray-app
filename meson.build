@@ -1,5 +1,5 @@
 project(
-    'sys-tray',
+    'wingpanel-indicator-sys-tray',
     'vala', 'c',
     version: '0.1.0',
     meson_version: '>= 0.49.0'
@@ -21,12 +21,8 @@ wingpanel_dep = declare_dependency(
 
 indicators_dir = join_paths(get_option('prefix'), get_option('libdir'), 'wingpanel')
 
-config = configuration_data()
-config.set_quoted('GETTEXT_PACKAGE', meson.project_name())
-configure_file(output: 'config.h', configuration: config)
-
 shared_module(
-    meson.project_name(),
+    'sys-tray',
     'src/PluginEntry.vala',
     'src/Plugin.vala',
     'src/Watcher.vala',
@@ -38,10 +34,7 @@ shared_module(
         '--vapidir=' + join_paths(meson.current_source_dir(), 'vapi'),
         '--pkg=wingpanel-8.0'
     ],
-    c_args: [
-        '-include' + join_paths(meson.current_build_dir(), 'config.h'),
-        '-I' + join_paths(meson.current_source_dir(), 'vapi')
-    ],
+    c_args: ['-I' + join_paths(meson.current_source_dir(), 'vapi')],
     install: true,
     install_dir: indicators_dir
 )

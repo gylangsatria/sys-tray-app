@@ -11,9 +11,9 @@
 
 namespace SysTray {
     public class IconData : Object {
-        // Ukuran ikon panel: bar Wingpanel meminta tinggi 30px dengan padding
-        // vertikal, jadi 22px sejajar dengan indikator bawaan.
-        public const int SIZE = 22;
+        // Ukuran ikon panel: 16px = Gtk.IconSize.MENU, ukuran yang dipakai
+        // indikator native Wingpanel, jadi tinggi ikon semua item rata.
+        public const int SIZE = 16;
 
         /** Entri terbesar yang valid dimenangkan. */
         public static Gdk.Pixbuf? parse (GLib.Variant? value) {
@@ -74,7 +74,9 @@ namespace SysTray {
             var dest_w = w >= h ? size : (int) ((double) w * size / h);
             var dest_h = h > w ? size : (int) ((double) h * size / w);
 
-            return pixbuf.scale_simple (dest_w, dest_h, Gdk.InterpType.BILINEAR) ?? pixbuf;
+            // HYPER: perbesaran-kualitas-terbaik gdk-pixbuf, penting karena
+            // banyak aplikasi mengirim ikon 64x64 atau lebih besar.
+            return pixbuf.scale_simple (dest_w, dest_h, Gdk.InterpType.HYPER) ?? pixbuf;
         }
     }
 }

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# sys-tray uninstaller: mengembalikan sesi ke kondisi asli Wingpanel.
+# wingpanel-indicator-sys-tray uninstaller: mengembalikan sesi ke kondisi asli Wingpanel.
 #
 # Yang dilakukan: buang berkas plugin, restart Wingpanel. Tidak ada perubahan
 # lain di sistem (tidak ada autostart, konfigurasi, atau service D-Bus baru),

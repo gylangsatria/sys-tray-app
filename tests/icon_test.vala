@@ -122,12 +122,12 @@ public static int main (string[] args) {
     var persegi = new Gdk.Pixbuf (Gdk.Colorspace.RGB, true, 8, 64, 64);
     var kecil = SysTray.IconData.scale (persegi, SysTray.IconData.SIZE);
 
-    cek ("64x64 -> 22x22", kecil.get_width () == 22 && kecil.get_height () == 22);
+    cek ("64x64 -> 16x16", kecil.get_width () == 16 && kecil.get_height () == 16);
 
     var lonjong = new Gdk.Pixbuf (Gdk.Colorspace.RGB, true, 8, 64, 32);
     var skala = SysTray.IconData.scale (lonjong, SysTray.IconData.SIZE);
 
-    cek ("64x32 -> 22x11 (rasio terjaga)", skala.get_width () == 22 && skala.get_height () == 11);
+    cek ("64x32 -> 16x8 (rasio terjaga)", skala.get_width () == 16 && skala.get_height () == 8);
 
     var mungil = new Gdk.Pixbuf (Gdk.Colorspace.RGB, true, 8, 16, 16);
     var sama = SysTray.IconData.scale (mungil, SysTray.IconData.SIZE);

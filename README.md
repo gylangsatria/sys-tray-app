@@ -1,4 +1,6 @@
-# sys-tray
+# Wingpanel Indicator Sys-tray
+
+![Preview](img/sys-tray-app-1.png)
 
 A StatusNotifierItem (SNI / AppIndicator) host for **Wingpanel 8** on
 elementary OS 8. Written in Vala with GTK3.
@@ -36,7 +38,9 @@ meson setup build --prefix=/usr
 ninja -C build
 ```
 
-Everything lands in `build/`. Nothing outside that directory is touched.
+Everything lands in `build/`. Nothing outside that directory is touched. The
+package name is `wingpanel-indicator-sys-tray`, but the module installed is
+still `libsys-tray.so`: Wingpanel only looks for the short name.
 
 ## Trying it without installing
 
@@ -61,6 +65,17 @@ meson test -C build                 # -> icon-data
 ```sh
 dbus-run-session -- sh -c 'GDK_BACKEND=x11 ./build/sys-tray-harness build/libsys-tray.so &
   sleep 3; python3 tests/fake_item.py /Item/A /Item/B & sleep 5; kill %2; sleep 5; kill %1'
+```
+
+`--theme-dir=DIR` copies the Discord/Chromium style instead: it writes a raw
+`status_icon_1.png` into `DIR` and advertises it through `IconName` +
+`IconThemePath`, with no pixmap. Such icons only resolve via
+`Gtk.IconTheme.lookup_icon()`, not `has_icon()`:
+
+```sh
+dbus-run-session -- sh -c 'GDK_BACKEND=x11 stdbuf -oL ./build/sys-tray-harness build/libsys-tray.so &
+  sleep 3; rm -rf /tmp/dtheme; python3 tests/fake_item.py --theme-dir=/tmp/dtheme /Discord &
+  sleep 6; kill %2; wait %1'
 ```
 
 ## Layout

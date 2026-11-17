@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# sys-tray installer: build plugin lalu pasang ke direktori indikator Wingpanel.
+# wingpanel-indicator-sys-tray installer: build plugin lalu pasang ke direktori indikator Wingpanel.
 #
 # Wingpanel meng-hardcode INDICATORS_DIR saat build dan hanya memindai folder
 # itu sekali saat start, jadi file harus ada di sana sebelum Wingpanel dijalankan.
@@ -96,7 +96,15 @@ else
     meson setup "$BUILD" "$HERE" --prefix=/usr >/dev/null
 fi
 
-ninja -C "$BUILD"
+# Sebagian berkas build (mis. .ninja_log) bisa jadi milik root kalau sebelumnya
+# ada `sudo ninja -C build install`. Kalau begitu ninja sebagai user gagal;
+# build dir aman dibuang lalu dibuat ulang.
+if ! ninja -C "$BUILD"; then
+    echo "==> build gagal (berkas build milik root?), build dir dibuat ulang"
+    rm -rf "$BUILD"
+    meson setup "$BUILD" "$HERE" --prefix=/usr >/dev/null
+    ninja -C "$BUILD"
+fi
 
 echo "==> install ke $INDICATORS_DIR"
 if [ -n "$DESTDIR" ]; then

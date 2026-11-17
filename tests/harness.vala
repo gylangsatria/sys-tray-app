@@ -39,7 +39,23 @@ private int report () {
                 if (child is Gtk.Image) {
                     var image = (Gtk.Image) child;
                     var storage = image.get_storage_type ();
-                    stdout.printf ("      gambar: storage=%d\n", (int) storage);
+
+                    // storage ICON_NAME berarti ikon datang dari tema (mis.
+                    // Discord: status_icon_1 + IconThemePath), bukan pixmap.
+                    if (storage == Gtk.ImageType.ICON_NAME) {
+                        unowned string nama = null;
+                        Gtk.IconSize ukuran = Gtk.IconSize.MENU;
+                        image.get_icon_name (out nama, out ukuran);
+                        var info = Gtk.IconTheme.get_default ().lookup_icon (nama, 16, 0);
+                        stdout.printf (
+                            "      gambar: storage=%d nama=%s berkas=%s\n",
+                            (int) storage,
+                            nama ?? "-",
+                            info != null ? info.get_filename () : "(tak ada)"
+                        );
+                    } else {
+                        stdout.printf ("      gambar: storage=%d\n", (int) storage);
+                    }
                 } else if (child is Gtk.Label) {
                     stdout.printf ("      label: %s\n", ((Gtk.Label) child).get_label ());
                 }

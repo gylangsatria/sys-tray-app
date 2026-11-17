@@ -248,9 +248,10 @@ namespace SysTray {
                 Gtk.IconTheme.get_default ().rescan_if_needed ();
             }
 
-            // Nama ikon yang tidak ada di tema bikin kotak kosong; lebih baik
-            // menandainya supaya item tidak tampak "hantu".
-            if (!Gtk.IconTheme.get_default ().has_icon (name)) {
+            // has_icon() hanya melihat cache tema (index.theme), jadi berkas PNG
+            // mentah di IconThemePath (mis. Discord: status_icon_1.png) dilaporkan
+            // tidak ada. lookup_icon() ikut menemukan berkas mentah.
+            if (Gtk.IconTheme.get_default ().lookup_icon (name, IconData.SIZE, 0) == null) {
                 warning ("sys-tray: ikon '%s' tidak ditemukan di tema", name);
                 image.set_from_icon_name ("image-missing", Gtk.IconSize.MENU);
 
