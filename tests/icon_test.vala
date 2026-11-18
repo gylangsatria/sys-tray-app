@@ -18,8 +18,8 @@ private static void cek (string nama, bool hasil) {
     }
 }
 
-/** Satu entri IconPixmap: (width, height, bytes ARGB big-endian). */
-private static string entry_text (int lebar, int tinggi, uint8 r, uint8 g, uint8 b, uint8 a) {
+/** Satu entri IconPixmap: (width, height, byte A, R, G, B). */
+private static string entry_text (int lebar, int tinggi, uint8 a, uint8 r, uint8 g, uint8 b) {
     var sb = new GLib.StringBuilder ("(");
 
     sb.append_printf ("%d, %d, [", lebar, tinggi);
@@ -29,7 +29,7 @@ private static string entry_text (int lebar, int tinggi, uint8 r, uint8 g, uint8
             sb.append (", ");
         }
 
-        sb.append_printf ("byte 0x%02x, byte 0x%02x, byte 0x%02x, byte 0x%02x", r, g, b, a);
+        sb.append_printf ("byte 0x%02x, byte 0x%02x, byte 0x%02x, byte 0x%02x", a, r, g, b);
     }
 
     sb.append ("])");
@@ -85,32 +85,41 @@ private static GLib.Variant? pixmaps (string[] entries) {
 
 public static int main (string[] args) {
     // 1. Satu entri: terbaca, ukuran dan alpha benar.
-    var satu = pixmaps ({ entry_text (4, 4, 10, 20, 30, 255) });
+    var satu = pixmaps ({ entry_text (4, 4, 255, 10, 20, 30) });
     var pixbuf = satu != null ? Baki.IconData.parse (satu) : null;
 
     cek ("pixmap tunggal terbaca", pixbuf != null);
     cek ("ukuran 4x4", pixbuf != null && pixbuf.get_width () == 4 && pixbuf.get_height () == 4);
     cek ("alpha terbaca", pixbuf != null && pixbuf.get_has_alpha ());
 
-    // 2. Urutan byte ARGB big-endian: byte 0 = R, byte 2 = B.
+    // 2. Urutan byte SNI (A, R, G, B) dikonversi ke RGBA milik GdkPixbuf.
     cek ("byte 0 = R", pixbuf != null && pixbuf.get_pixels ()[0] == 10);
+    cek ("byte 1 = G", pixbuf != null && pixbuf.get_pixels ()[1] == 20);
     cek ("byte 2 = B", pixbuf != null && pixbuf.get_pixels ()[2] == 30);
+    cek ("byte 3 = A", pixbuf != null && pixbuf.get_pixels ()[3] == 255);
+
+    // 2b. Pixel transparan tetap transparan, warnanya tidak bocor ke alpha.
+    var bening = pixmaps ({ entry_text (2, 2, 0, 255, 255, 255) });
+    var kosong = bening != null ? Baki.IconData.parse (bening) : null;
+
+    cek ("alpha 0 tetap 0", kosong != null && kosong.get_pixels ()[3] == 0);
+    cek ("warna putih tidak jadi alpha", kosong != null && kosong.get_pixels ()[0] == 255);
 
     // 3. Dua entri: yang terbesar yang dipakai.
-    var dua = pixmaps ({ entry_text (4, 4, 1, 1, 1, 255), entry_text (16, 16, 2, 2, 2, 255) });
+    var dua = pixmaps ({ entry_text (4, 4, 255, 1, 1, 1), entry_text (16, 16, 255, 2, 2, 2) });
     var besar = dua != null ? Baki.IconData.parse (dua) : null;
 
     cek ("entri terbesar dipakai", besar != null && besar.get_width () == 16);
 
     // 4. Entri pertama byte-nya kurang: dilewati, yang valid tetap dapat.
-    var rusak = pixmaps ({ entry_text_bytes (8, 8, 4), entry_text (6, 6, 3, 3, 3, 255) });
+    var rusak = pixmaps ({ entry_text_bytes (8, 8, 4), entry_text (6, 6, 255, 3, 3, 3) });
     var tetap = rusak != null ? Baki.IconData.parse (rusak) : null;
 
     cek ("entri rusak dilewati", tetap != null && tetap.get_width () == 6);
 
     // 5. Semua entri tidak valid / properti bertipe lain -> null, bukan crash.
     var semua_rusak = pixmaps ({ entry_text_bytes (8, 8, 0) });
-    var bukan_array = parse ("(iiay)", entry_text (4, 4, 1, 1, 1, 255));
+    var bukan_array = parse ("(iiay)", entry_text (4, 4, 255, 1, 1, 1));
     var bukan_pixmap = parse ("s", "\"bukan pixmap\"");
 
     cek ("gambar tidak valid -> null", semua_rusak != null && Baki.IconData.parse (semua_rusak) == null);

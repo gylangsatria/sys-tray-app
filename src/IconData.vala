@@ -1,9 +1,8 @@
 /*
  * Ikon mentah StatusNotifierItem.
  *
- * Properti IconPixmap / AttentionIconPixmap bertipe a(iiay): array struct
- * (width, height, bytes). Bytes-nya ARGB big-endian (urutan byte di memory:
- * R, G, B, A) dengan alpha sudah di-premultiply.
+ * Properti IconPixmap / AttentionIconPixmap bertipe a(iiay) berisi byte A, R,
+ * G, B; parse_entry menukarnya ke R, G, B, A yang dimengerti GdkPixbuf.
  *
  * Banyak aplikasi (Electron/Flutter, mis. ZapFast) mengosongkan IconName dan
  * hanya mengirim pixmap, jadi properti ini harus digambar sendiri.
@@ -51,9 +50,19 @@ namespace Baki {
                 return null;
             }
 
-            // ARGB big-endian = byte order R, G, B, A di memory.
+            // SNI A, R, G, B -> GdkPixbuf R, G, B, A.
+            unowned uint8[] src = bytes.get_data ();
+            var rgba = new uint8[src.length];
+
+            for (var i = 0; i < src.length; i += 4) {
+                rgba[i] = src[i + 1];
+                rgba[i + 1] = src[i + 2];
+                rgba[i + 2] = src[i + 3];
+                rgba[i + 3] = src[i];
+            }
+
             // from_bytes tidak melempar, hanya bisa mengembalikan null.
-            var pixbuf = new Gdk.Pixbuf.from_bytes (bytes, Gdk.Colorspace.RGB, true, 8, width, height, width * 4);
+            var pixbuf = new Gdk.Pixbuf.from_bytes (new Bytes (rgba), Gdk.Colorspace.RGB, true, 8, width, height, width * 4);
 
             if (pixbuf == null) {
                 warning ("baki: pixmap %dx%d ditolak", width, height);
