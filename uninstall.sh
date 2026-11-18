@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# wingpanel-indicator-sys-tray uninstaller: mengembalikan sesi ke kondisi asli Wingpanel.
+# wingpanel-indicator-baki uninstaller: mengembalikan sesi ke kondisi asli Wingpanel.
 #
 # Yang dilakukan: buang berkas plugin, restart Wingpanel. Tidak ada perubahan
 # lain di sistem (tidak ada autostart, konfigurasi, atau service D-Bus baru),
@@ -11,7 +11,7 @@
 #
 set -eu
 
-SO_NAME="libsys-tray.so"
+SO_NAME="libbaki.so"
 DESTDIR="${DESTDIR:-}"
 
 if [ -n "$DESTDIR" ]; then

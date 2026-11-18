@@ -27,12 +27,12 @@ public Wingpanel.Indicator? get_indicator (
     try {
         connection = GLib.Bus.get_sync (GLib.BusType.SESSION);
     } catch (Error e) {
-        critical ("sys-tray: tidak bisa memakai session bus: %s", e.message);
+        critical ("baki: tidak bisa memakai session bus: %s", e.message);
 
         return null;
     }
 
-    SysTray.Plugin.get_default ().setup (connection);
+    Baki.Plugin.get_default ().setup (connection);
 
     return null;
 }

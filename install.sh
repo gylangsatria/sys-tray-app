@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# wingpanel-indicator-sys-tray installer: build plugin lalu pasang ke direktori indikator Wingpanel.
+# wingpanel-indicator-baki installer: build plugin lalu pasang ke direktori indikator Wingpanel.
 #
 # Wingpanel meng-hardcode INDICATORS_DIR saat build dan hanya memindai folder
 # itu sekali saat start, jadi file harus ada di sana sebelum Wingpanel dijalankan.
@@ -9,7 +9,7 @@
 #
 set -eu
 
-SO_NAME="libsys-tray.so"
+SO_NAME="libbaki.so"
 HERE=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 BUILD="$HERE/build"
 DESTDIR="${DESTDIR:-}"
@@ -47,15 +47,15 @@ missing=${unique# }
 
 if [ -n "$missing" ]; then
     if [ -n "$DESTDIR" ]; then
-        echo "sys-tray: dependensi belum ada:$missing" >&2
-        echo "sys-tray: mode uji coba tidak memasang dependensi; pasang dulu." >&2
+        echo "baki: dependensi belum ada:$missing" >&2
+        echo "baki: mode uji coba tidak memasang dependensi; pasang dulu." >&2
 
         exit 1
     fi
 
     if ! command -v apt-get >/dev/null 2>&1; then
-        echo "sys-tray: dependensi belum ada:$missing" >&2
-        echo "sys-tray: pasang lewat manajer paket distro Anda, lalu jalankan lagi." >&2
+        echo "baki: dependensi belum ada:$missing" >&2
+        echo "baki: pasang lewat manajer paket distro Anda, lalu jalankan lagi." >&2
 
         exit 1
     fi
@@ -63,7 +63,7 @@ if [ -n "$missing" ]; then
     echo "==> pasang dependensi:$missing"
     # shellcheck disable=SC2086 # $missing sengaja dipecah: daftar nama paket.
     sudo apt-get install -y $missing || {
-        echo "sys-tray: pemasangan gagal; coba 'sudo apt-get update' lalu ulangi." >&2
+        echo "baki: pemasangan gagal; coba 'sudo apt-get update' lalu ulangi." >&2
 
         exit 1
     }
@@ -71,7 +71,7 @@ fi
 
 for tool in meson ninja valac; do
     command -v "$tool" >/dev/null 2>&1 || {
-        echo "sys-tray: '$tool' masih belum tersedia." >&2
+        echo "baki: '$tool' masih belum tersedia." >&2
 
         exit 1
     }

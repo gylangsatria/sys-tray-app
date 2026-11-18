@@ -16,7 +16,7 @@
  * dengan indikator Wingpanel lain (Gtk.Menu diperuntukkan sebagai menu popup).
  */
 
-namespace SysTray {
+namespace Baki {
     public class DbusMenu : Object {
         public signal void layout_changed ();
 
@@ -100,7 +100,7 @@ namespace SysTray {
                     2000
                 );
             } catch (Error e) {
-                debug ("sys-tray: AboutToShow gagal: %s", e.message);
+                debug ("baki: AboutToShow gagal: %s", e.message);
             }
 
             refresh ();
@@ -133,7 +133,7 @@ namespace SysTray {
                     2000
                 );
             } catch (Error e) {
-                warning ("sys-tray: Event(%d) gagal: %s", id, e.message);
+                warning ("baki: Event(%d) gagal: %s", id, e.message);
             }
 
             refresh ();
@@ -154,7 +154,7 @@ namespace SysTray {
                     3000
                 );
             } catch (Error e) {
-                warning ("sys-tray: GetLayout %s gagal: %s", object_path, e.message);
+                warning ("baki: GetLayout %s gagal: %s", object_path, e.message);
                 refreshing = 0;
 
                 return;
@@ -183,7 +183,7 @@ namespace SysTray {
             var node = new Node ();
 
             if (variant.n_children () < 3) {
-                warning ("sys-tray: node menu tidak lengkap, dilewati");
+                warning ("baki: node menu tidak lengkap, dilewati");
 
                 return node;
             }

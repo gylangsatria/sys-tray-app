@@ -9,7 +9,7 @@
  * hanya mengirim pixmap, jadi properti ini harus digambar sendiri.
  */
 
-namespace SysTray {
+namespace Baki {
     public class IconData : Object {
         // Ukuran ikon panel: 16px = Gtk.IconSize.MENU, ukuran yang dipakai
         // indikator native Wingpanel, jadi tinggi ikon semua item rata.
@@ -56,7 +56,7 @@ namespace SysTray {
             var pixbuf = new Gdk.Pixbuf.from_bytes (bytes, Gdk.Colorspace.RGB, true, 8, width, height, width * 4);
 
             if (pixbuf == null) {
-                warning ("sys-tray: pixmap %dx%d ditolak", width, height);
+                warning ("baki: pixmap %dx%d ditolak", width, height);
             }
 
             return pixbuf;

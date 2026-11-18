@@ -15,7 +15,7 @@
  * pesan dipakai untuk mencatat pengirim sebelum method dijalankan.
  */
 
-namespace SysTray {
+namespace Baki {
     [DBus (name = "org.kde.StatusNotifierWatcher")]
     public class Watcher : Object {
         public const string BUS_NAME = "org.kde.StatusNotifierWatcher";
@@ -83,12 +83,12 @@ namespace SysTray {
             status_notifier_item_registered (key);
             item_registered (bus_name, object_path, key);
 
-            debug ("sys-tray: item terdaftar: %s", key);
+            debug ("baki: item terdaftar: %s", key);
         }
 
         public void register_status_notifier_host (string service) throws GLib.Error {
             status_notifier_host_registered ();
-            debug ("sys-tray: host terdaftar: %s", service);
+            debug ("baki: host terdaftar: %s", service);
         }
 
         // Aplikasi berhenti -> semua item dan indikatornya ikut dibuang.

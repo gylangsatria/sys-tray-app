@@ -1,5 +1,5 @@
 project(
-    'wingpanel-indicator-sys-tray',
+    'wingpanel-indicator-baki',
     'vala', 'c',
     version: '0.1.0',
     license: 'GPL-3.0-or-later',
@@ -23,7 +23,7 @@ wingpanel_dep = declare_dependency(
 indicators_dir = join_paths(get_option('prefix'), get_option('libdir'), 'wingpanel')
 
 shared_module(
-    'sys-tray',
+    'baki',
     'src/PluginEntry.vala',
     'src/Plugin.vala',
     'src/Watcher.vala',
@@ -41,9 +41,9 @@ shared_module(
 )
 
 # Harness uji: memuat plugin seperti Wingpanel lalu melaporkan indikator aktif.
-# Jalankan: ./build/sys-tray-harness build/libsys-tray.so
+# Jalankan: ./build/baki-harness build/libbaki.so
 executable(
-    'sys-tray-harness',
+    'baki-harness',
     'tests/harness.vala',
     dependencies: wingpanel_dep,
     vala_args: [
@@ -55,9 +55,9 @@ executable(
 )
 
 # Uji konversi IconPixmap -> Gdk.Pixbuf (tanpa D-Bus/display).
-# Jalankan: meson test -C build  (atau ./build/sys-tray-icon-test)
+# Jalankan: meson test -C build  (atau ./build/baki-icon-test)
 icon_test = executable(
-    'sys-tray-icon-test',
+    'baki-icon-test',
     'tests/icon_test.vala',
     'src/IconData.vala',
     dependencies: [glib_dep, gio_dep, gtk_dep, gdk_pixbuf_dep],

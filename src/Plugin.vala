@@ -1,5 +1,5 @@
 /*
- * sys-tray: status notifier (SNI / AppIndicator) host untuk Wingpanel 8.
+ * baki: status notifier (SNI / AppIndicator) host untuk Wingpanel 8.
  *
  * Peran plugin:
  *  1. Memiliki nama bus org.kde.StatusNotifierWatcher (pengganti xapp-sn-watcher
@@ -9,7 +9,7 @@
  *  3. Membaca menu via com.canonical.dbusmenu dan menampilkannya di popover.
  */
 
-namespace SysTray {
+namespace Baki {
     public class Plugin : Object {
         private static Plugin? plugin = null;
 
@@ -43,7 +43,7 @@ namespace SysTray {
             try {
                 connection.register_object (Watcher.OBJECT_PATH, watcher);
             } catch (Error e) {
-                critical ("sys-tray: gagal mendaftarkan watcher: %s", e.message);
+                critical ("baki: gagal mendaftarkan watcher: %s", e.message);
 
                 return;
             }
@@ -61,13 +61,13 @@ namespace SysTray {
         }
 
         private void on_name_acquired (GLib.DBusConnection conn, string name) {
-            debug ("sys-tray: watcher aktif sebagai %s", name);
+            debug ("baki: watcher aktif sebagai %s", name);
         }
 
         private void on_name_lost (GLib.DBusConnection conn, string name) {
             // Nama bus dipegang proses lain (mis. xapp-sn-watcher): item SNI
             // akan mendaftar ke pemegang nama itu, bukan ke plugin ini.
-            critical ("sys-tray: gagal mengambil nama %s, aplikasi SNI tidak akan tampil", name);
+            critical ("baki: gagal mengambil nama %s, aplikasi SNI tidak akan tampil", name);
         }
 
         private void on_item_registered (string bus_name, string object_path, string key) {

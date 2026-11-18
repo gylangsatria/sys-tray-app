@@ -1,9 +1,12 @@
-# Wingpanel Indicator Sys-tray
+# Wingpanel Indicator Baki
 
-![Preview](img/sys-tray-app-1.png)
+![Preview](img/baki-app-1.png)
 
 A StatusNotifierItem (SNI / AppIndicator) host for **Wingpanel 8** on
 elementary OS 8. Written in Vala with GTK3.
+
+The name is Indonesian: *baki* means "tray" — the very thing this plugin puts
+back in the panel.
 
 ## Why a Wingpanel plugin and not a regular AppIndicator app
 
@@ -39,13 +42,13 @@ ninja -C build
 ```
 
 Everything lands in `build/`. Nothing outside that directory is touched. The
-package name is `wingpanel-indicator-sys-tray`, but the module installed is
-still `libsys-tray.so`: Wingpanel only looks for the short name.
+package name is `wingpanel-indicator-baki`, but the module installed is
+still `libbaki.so`: Wingpanel only looks for the short name.
 
 ## Trying it without installing
 
 ```sh
-./build/sys-tray-harness build/libsys-tray.so
+./build/baki-harness build/libbaki.so
 ```
 
 The harness loads the plugin the way Wingpanel does, prints the indicators
@@ -63,7 +66,7 @@ meson test -C build                 # -> icon-data
 `IconName`) so the item-exit path can be exercised without real apps:
 
 ```sh
-dbus-run-session -- sh -c 'GDK_BACKEND=x11 ./build/sys-tray-harness build/libsys-tray.so &
+dbus-run-session -- sh -c 'GDK_BACKEND=x11 ./build/baki-harness build/libbaki.so &
   sleep 3; python3 tests/fake_item.py /Item/A /Item/B & sleep 5; kill %2; sleep 5; kill %1'
 ```
 
@@ -73,7 +76,7 @@ dbus-run-session -- sh -c 'GDK_BACKEND=x11 ./build/sys-tray-harness build/libsys
 `Gtk.IconTheme.lookup_icon()`, not `has_icon()`:
 
 ```sh
-dbus-run-session -- sh -c 'GDK_BACKEND=x11 stdbuf -oL ./build/sys-tray-harness build/libsys-tray.so &
+dbus-run-session -- sh -c 'GDK_BACKEND=x11 stdbuf -oL ./build/baki-harness build/libbaki.so &
   sleep 3; rm -rf /tmp/dtheme; python3 tests/fake_item.py --theme-dir=/tmp/dtheme /Discord &
   sleep 6; kill %2; wait %1'
 ```
@@ -132,7 +135,7 @@ Wingpanel 8, where nothing owns `org.kde.StatusNotifierWatcher`.
 
 ## License
 
-GPL-3.0-or-later — see [`COPYING`](COPYING), the full text of GPLv3. The
+GPL-3.0-or-later — see [`LICENSE.md`](LICENSE.md), the full text of GPLv3. The
 `vapi/wingpanel.h` and `vapi/wingpanel-8.0.vapi` copies are generated from
 Wingpanel 8.0.4 and stay under Wingpanel's own GPL-3.0-or-later terms.
 

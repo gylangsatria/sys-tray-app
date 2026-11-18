@@ -11,7 +11,7 @@
  *  - AttentionIconName (ikon saat minta perhatian)
  */
 
-namespace SysTray {
+namespace Baki {
     public class ItemIndicator : Wingpanel.Indicator {
         private GLib.DBusConnection connection;
         private string bus_name;
@@ -252,7 +252,7 @@ namespace SysTray {
             // mentah di IconThemePath (mis. Discord: status_icon_1.png) dilaporkan
             // tidak ada. lookup_icon() ikut menemukan berkas mentah.
             if (Gtk.IconTheme.get_default ().lookup_icon (name, IconData.SIZE, 0) == null) {
-                warning ("sys-tray: ikon '%s' tidak ditemukan di tema", name);
+                warning ("baki: ikon '%s' tidak ditemukan di tema", name);
                 image.set_from_icon_name ("image-missing", Gtk.IconSize.MENU);
 
                 return;
@@ -315,12 +315,12 @@ namespace SysTray {
             } catch (Error e) {
                 if (GLib.DBusError.get_remote_error (e) == "org.freedesktop.DBus.Error.ServiceUnknown") {
                     // Item hilang sebelum propertinya sempat dibaca.
-                    debug ("sys-tray: item %s sudah tidak ada", object_path);
+                    debug ("baki: item %s sudah tidak ada", object_path);
 
                     return null;
                 }
 
-                warning ("sys-tray: gagal membaca properti %s: %s", object_path, e.message);
+                warning ("baki: gagal membaca properti %s: %s", object_path, e.message);
 
                 return null;
             }

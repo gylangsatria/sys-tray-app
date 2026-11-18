@@ -1,5 +1,5 @@
 /*
- * Harness uji: memuat libsys-tray.so seperti Wingpanel, memanggil
+ * Harness uji: memuat libbaki.so seperti Wingpanel, memanggil
  * get_indicator(), lalu memeriksa indikator apa saja yang terdaftar dan
  * widget apa yang dihasilkan. Bukan bagian dari aplikasi.
  */
@@ -96,7 +96,7 @@ private int report () {
 public int main (string[] args) {
     Gtk.init (ref args);
 
-    var path = args.length > 1 ? args[1] : "build/libsys-tray.so";
+    var path = args.length > 1 ? args[1] : "build/libbaki.so";
     var module = GLib.Module.open (path, GLib.ModuleFlags.LAZY);
 
     if (module == null) {
