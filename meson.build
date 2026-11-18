@@ -66,3 +66,12 @@ icon_test = executable(
     install: false
 )
 test('icon-data', icon_test)
+
+# Uji posisi tray relatif terhadap Monitor & nightlight. Jalankan: meson test -C build
+order_test = executable(
+    'baki-order-test',
+    'tests/order_test.vala',
+    dependencies: [glib_dep],
+    install: false
+)
+test('order', order_test)

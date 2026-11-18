@@ -147,6 +147,11 @@ Wingpanel 8.0.4 and stay under Wingpanel's own GPL-3.0-or-later terms.
 - Left-clicking the icon opens the popover. SNI `Activate` and
   `SecondaryActivate` are never called, because Wingpanel owns the popover
   gesture.
+- The tray's position is set by Wingpanel's `IndicatorSorter` (hardcoded
+  `code_name` order), so icons can only move as one block. This plugin uses
+  `monitor-ayatana-<bus><path>` to sit right after Monitor and before
+  nightlight; rename that prefix in `src/ItemIndicator.vala` to move the block
+  (`tests/order_test.vala` pins the choice).
 - The popover is built out of `Gtk.Box` instead of `Gtk.Menu`, since
   Wingpanel's popover is a plain container; submenus use `Gtk.MenuButton`.
 - Items whose app quits are **hidden**, never deregistered: Wingpanel 8.0.4

@@ -45,7 +45,8 @@ namespace Baki {
             string key
         ) {
             Object (
-                code_name: "ayatana-" + key,
+                // Prefix dipilih agar tray tersortir tepat setelah "monitor indicator" (libmonitor).
+                code_name: "monitor-ayatana-" + key,
                 visible: true
             );
 
