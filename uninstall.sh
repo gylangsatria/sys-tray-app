@@ -2,10 +2,7 @@
 #
 # wingpanel-indicator-baki uninstaller: mengembalikan sesi ke kondisi asli Wingpanel.
 #
-# Yang dilakukan: buang berkas plugin, restart Wingpanel. Tidak ada perubahan
-# lain di sistem (tidak ada autostart, konfigurasi, atau service D-Bus baru),
-# jadi kondisi setelah ini sama dengan sebelum plugin dipasang: tidak ada yang
-# memiliki nama bus org.kde.StatusNotifierWatcher.
+# uninstaller: buang plugin + override autostart nm-applet, restart Wingpanel.
 #
 # Uji coba tanpa menyentuh /usr:  DESTDIR=/tmp/st ./uninstall.sh
 #
@@ -36,6 +33,21 @@ done
 
 [ "$removed" -gt 0 ] || echo "    tidak ada ($SO_NAME sudah tidak terpasang)"
 
+# Hapus override install.sh; hanya kalau isinya masih persis (edit tangan dijaga).
+AUTOSTART_HIDE="$HOME/.config/autostart/nm-applet.desktop"
+SYSTEM_HIDE='[Desktop Entry]
+Type=Application
+Name=NetworkManager Applet
+Hidden=true'
+
+if [ -f "$AUTOSTART_HIDE" ] && [ "$(cat "$AUTOSTART_HIDE")" = "$SYSTEM_HIDE" ]; then
+    echo "==> hapus override autostart nm-applet"
+    rm -f "$AUTOSTART_HIDE"
+    restored=1
+else
+    restored=0
+fi
+
 if [ -n "$DESTDIR" ]; then
     echo "==> uji coba selesai (DESTDIR=$DESTDIR), Wingpanel tidak disentuh"
 
@@ -53,3 +65,9 @@ fi
 echo "==> sisa berkas plugin (harus kosong):"
 ls -d /usr/lib/*/wingpanel/"$SO_NAME" /usr/local/lib/*/wingpanel/"$SO_NAME" 2>/dev/null \
     || echo "    bersih: sistem kembali ke Wingpanel asli"
+
+# Tanpa override, nm-applet baru muncul saat login berikutnya: jalankan sekarang.
+if [ "$restored" -eq 0 ] && [ ! -f "$AUTOSTART_HIDE" ] && command -v nm-applet >/dev/null 2>&1; then
+    echo "==> jalankan lagi nm-applet"
+    setsid nm-applet >/dev/null 2>&1 &
+fi

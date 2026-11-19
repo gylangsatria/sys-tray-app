@@ -116,6 +116,12 @@ pkill io.elementary.wingpanel      # reload the panel
 This writes to `/usr` (sudo needed), so do it only on the machine you want it
 on. Nothing else is needed; `xapp-sn-watcher` can stay off.
 
+`install.sh` also writes `~/.config/autostart/nm-applet.desktop`
+(`Hidden=true`) when `nm-applet` exists: that applet raises `nm-signal-100`, a
+duplicate of Wingpanel's own Wi-Fi icon, and the user-level entry overrides
+`/etc/xdg/autostart/` without sudo. It is skipped when the file exists, so a
+hand-written `Hidden=false` survives; delete the file to bring the applet back.
+
 Dry run without touching `/usr` (Meson's `DESTDIR` convention):
 
 ```sh
@@ -129,9 +135,9 @@ DESTDIR=/tmp/st ./uninstall.sh
 ./uninstall.sh                      # remove the plugin + restart Wingpanel
 ```
 
-The install adds exactly one file and no autostart entries, D-Bus services or
-config, so removing that file is a full revert: the session goes back to stock
-Wingpanel 8, where nothing owns `org.kde.StatusNotifierWatcher`.
+The install adds the plugin plus that one autostart override; `uninstall.sh`
+removes both (the override only if it is still untouched), so the session goes
+back to stock Wingpanel 8, where nothing owns `org.kde.StatusNotifierWatcher`.
 
 ## License
 

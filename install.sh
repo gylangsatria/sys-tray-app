@@ -116,6 +116,21 @@ fi
 
 sudo ninja -C "$BUILD" install
 
+# nm-applet menggandakan indikator Wi-Fi: override user menang atas /etc/xdg/autostart.
+AUTOSTART_HIDE="$HOME/.config/autostart/nm-applet.desktop"
+
+if [ ! -f "$AUTOSTART_HIDE" ] && command -v nm-applet >/dev/null 2>&1; then
+    echo "==> matikan autostart nm-applet (duplikat indikator Wi-Fi)"
+    mkdir -p "$(dirname "$AUTOSTART_HIDE")"
+    cat > "$AUTOSTART_HIDE" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=NetworkManager Applet
+Hidden=true
+EOF
+    pkill -x nm-applet 2>/dev/null || true
+fi
+
 echo "==> restart Wingpanel"
 # Nama proses di Linux dipotong 15 karakter, jadi pola dicocokkan ke cmdline.
 pkill -f io.elementary.wingpanel || true
